@@ -28,13 +28,47 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.grid = new System.Windows.Forms.DataGridView();
+            this.lblProduction = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.grid)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // grid
+            // 
+            this.grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grid.Location = new System.Drawing.Point(41, 197);
+            this.grid.Name = "grid";
+            this.grid.RowTemplate.Height = 24;
+            this.grid.Size = new System.Drawing.Size(716, 293);
+            this.grid.TabIndex = 0;
+            // 
+            // lblProduction
+            // 
+            this.lblProduction.AutoSize = true;
+            this.lblProduction.Location = new System.Drawing.Point(41, 26);
+            this.lblProduction.Name = "lblProduction";
+            this.lblProduction.Size = new System.Drawing.Size(0, 17);
+            this.lblProduction.TabIndex = 1;
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 502);
+            this.Controls.Add(this.lblProduction);
+            this.Controls.Add(this.grid);
+            this.Name = "Form1";
             this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.grid)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
+
+        private System.Windows.Forms.DataGridView grid;
+        private System.Windows.Forms.Label lblProduction;
     }
 }
 
