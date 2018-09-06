@@ -30,7 +30,9 @@
         {
             this.grid = new System.Windows.Forms.DataGridView();
             this.lblProduction = new System.Windows.Forms.Label();
+            this.gridAnalise = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.grid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridAnalise)).BeginInit();
             this.SuspendLayout();
             // 
             // grid
@@ -50,16 +52,27 @@
             this.lblProduction.Size = new System.Drawing.Size(0, 17);
             this.lblProduction.TabIndex = 1;
             // 
+            // gridAnalise
+            // 
+            this.gridAnalise.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridAnalise.Location = new System.Drawing.Point(41, 507);
+            this.gridAnalise.Name = "gridAnalise";
+            this.gridAnalise.RowTemplate.Height = 24;
+            this.gridAnalise.Size = new System.Drawing.Size(716, 293);
+            this.gridAnalise.TabIndex = 2;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 502);
+            this.ClientSize = new System.Drawing.Size(800, 821);
+            this.Controls.Add(this.gridAnalise);
             this.Controls.Add(this.lblProduction);
             this.Controls.Add(this.grid);
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.grid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridAnalise)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -69,6 +82,7 @@
 
         private System.Windows.Forms.DataGridView grid;
         private System.Windows.Forms.Label lblProduction;
+        private System.Windows.Forms.DataGridView gridAnalise;
     }
 }
 

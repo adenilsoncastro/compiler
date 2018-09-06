@@ -12,12 +12,24 @@ namespace Compilador
         {
             InitializeComponent();
 
+            var entrada = "n v n w n";
+            var listEntrada = entrada.Split(' ').ToList();
+
             var rm = new RuleManager();
-            rm.Rules.Add(rm.CreateTextRule("E->TP"));
-            rm.Rules.Add(rm.CreateTextRule("P->vTP/?"));
-            rm.Rules.Add(rm.CreateTextRule("T->FO"));
-            rm.Rules.Add(rm.CreateTextRule("O->&FO/?"));
-            rm.Rules.Add(rm.CreateTextRule("F->~F/i"));
+            //rm.Rules.Add(rm.CreateTextRule("E->TP"));
+            //rm.Rules.Add(rm.CreateTextRule("P->vTP/?"));
+            //rm.Rules.Add(rm.CreateTextRule("T->FO"));
+            //rm.Rules.Add(rm.CreateTextRule("O->&FO/?"));
+            //rm.Rules.Add(rm.CreateTextRule("F->~F/i"));
+
+            rm.Rules.Add(rm.CreateTextRule("A->BPC"));
+            //rm.Rules.Add(rm.CreateTextRule("P->vBPC"));
+            //rm.Rules.Add(rm.CreateTextRule("P->?"));
+            rm.Rules.Add(rm.CreateTextRule("P->vBPC/?"));
+            rm.Rules.Add(rm.CreateTextRule("B->CR"));
+            rm.Rules.Add(rm.CreateTextRule("R->wCR"));
+            rm.Rules.Add(rm.CreateTextRule("R->?"));
+            rm.Rules.Add(rm.CreateTextRule("C->n"));
 
             rm.Rules.ForEach(x => lblProduction.Text += x.ToString() + Environment.NewLine);
 
@@ -29,7 +41,7 @@ namespace Compilador
                 Console.WriteLine();
             }
 
-            var listOfNames = rm.Rules.Select(x => x.Name).ToList();
+            var listOfNames = rm.Rules.Select(x => x.Name).Distinct().ToList();
             var terminais = new List<string>();
 
             foreach (var rule in rm.Rules)
@@ -100,6 +112,36 @@ namespace Compilador
                     }
                 }
             }
+
+            gridAnalise.Columns.Add("Pilha", "Pilha");
+            gridAnalise.Columns.Add("Entrada", "Entrada");
+            gridAnalise.Columns.Add("Ação", "Ação");
+
+            var pilha = new List<string>() { listOfNames.First() };
+
+            i = 0;
+            while (pilha.Count > 0)
+            {
+                gridAnalise.Rows.Add();
+                gridAnalise[0, i].Value = $"$ {String.Join("", pilha) }";
+                gridAnalise[1, i].Value = $"{ String.Join(" ", listEntrada) } $";
+
+                var col = grid.Columns.Cast<DataGridViewColumn>()
+                    .Where(x => x.HeaderText == listEntrada.First()).FirstOrDefault().Index;
+                var row = grid.Rows.Cast<DataGridViewRow>()
+                    .Where(x => x.HeaderCell.Value.ToString() == pilha.LastOrDefault()).FirstOrDefault().Index;
+
+                var producao = grid[col, row].Value.ToString();
+                gridAnalise[2, i].Value = producao;
+
+                pilha.Remove(pilha.Last());
+                var ruleText = rm.Rules
+                    .Where(x => x.ToString() == producao.Replace(" (first)", "").Replace(" follow", ""))
+                    .FirstOrDefault()
+                    .GetRuleText();
+                pilha.AddRange(new List<string>(ruleText.Reverse().Select(c => c.ToString())));
+                i++;
+            }
         }
     }
 
@@ -156,29 +198,36 @@ namespace Compilador
             }
         }
 
+        public string GetRuleText()
+        {
+            var segments = ToString().Split(new[] { "->" }, StringSplitOptions.None);
+            var ruleText = segments[1];
+            return ruleText;
+        }
+
         private string GetEmpty()
         {
-            if(_empty == null)
+            if (_empty == null)
             {
                 var segments = ToString()
                     .Split(new[] { "->", "/" }, StringSplitOptions.None)
                     .Where(x => x != Name);
                 _empty = segments.Where(x => x.Contains("?")).Select(x => x).FirstOrDefault()?.ToString();
             }
-            
+
             return _empty;
         }
 
         private string GetNotEmpty()
         {
-            if(_notEmpty == null)
+            if (_notEmpty == null)
             {
                 var segments = ToString()
                     .Split(new[] { "->", "/" }, StringSplitOptions.None)
                     .Where(x => x != Name);
                 _notEmpty = segments.Where(x => !x.Contains("?")).Select(x => x).FirstOrDefault()?.ToString();
             }
-            
+
             return _notEmpty;
         }
     }
