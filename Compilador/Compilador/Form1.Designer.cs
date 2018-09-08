@@ -31,6 +31,7 @@
             this.grid = new System.Windows.Forms.DataGridView();
             this.lblProduction = new System.Windows.Forms.Label();
             this.gridAnalise = new System.Windows.Forms.DataGridView();
+            this.btnNext = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridAnalise)).BeginInit();
             this.SuspendLayout();
@@ -61,11 +62,22 @@
             this.gridAnalise.Size = new System.Drawing.Size(716, 293);
             this.gridAnalise.TabIndex = 2;
             // 
+            // btnNext
+            // 
+            this.btnNext.Location = new System.Drawing.Point(681, 129);
+            this.btnNext.Name = "btnNext";
+            this.btnNext.Size = new System.Drawing.Size(75, 23);
+            this.btnNext.TabIndex = 3;
+            this.btnNext.Text = "Next";
+            this.btnNext.UseVisualStyleBackColor = true;
+            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 821);
+            this.Controls.Add(this.btnNext);
             this.Controls.Add(this.gridAnalise);
             this.Controls.Add(this.lblProduction);
             this.Controls.Add(this.grid);
@@ -83,6 +95,7 @@
         private System.Windows.Forms.DataGridView grid;
         private System.Windows.Forms.Label lblProduction;
         private System.Windows.Forms.DataGridView gridAnalise;
+        private System.Windows.Forms.Button btnNext;
     }
 }
 

@@ -8,30 +8,54 @@ namespace Compilador
 {
     public partial class Form1 : Form
     {
+        int iteracao = 0;
+        List<string> pilha = new List<string>();
+        List<string> listEntrada = new List<string>();
+        RuleManager rm = new RuleManager();
+
         public Form1()
         {
             InitializeComponent();
+            grid.RowHeadersWidth = 50;
+            var listOfRules = new List<string>();
 
-            var entrada = "n v n w n";
-            var listEntrada = entrada.Split(' ').ToList();
+            listEntrada = "n v n w n".Split(' ').ToList();
 
-            var rm = new RuleManager();
+            rm = new RuleManager();
             //rm.Rules.Add(rm.CreateTextRule("E->TP"));
             //rm.Rules.Add(rm.CreateTextRule("P->vTP/?"));
             //rm.Rules.Add(rm.CreateTextRule("T->FO"));
             //rm.Rules.Add(rm.CreateTextRule("O->&FO/?"));
             //rm.Rules.Add(rm.CreateTextRule("F->~F/i"));
 
-            rm.Rules.Add(rm.CreateTextRule("A->BPC"));
-            //rm.Rules.Add(rm.CreateTextRule("P->vBPC"));
-            //rm.Rules.Add(rm.CreateTextRule("P->?"));
-            rm.Rules.Add(rm.CreateTextRule("P->vBPC/?"));
-            rm.Rules.Add(rm.CreateTextRule("B->CR"));
-            rm.Rules.Add(rm.CreateTextRule("R->wCR"));
-            rm.Rules.Add(rm.CreateTextRule("R->?"));
-            rm.Rules.Add(rm.CreateTextRule("C->n"));
+            listOfRules.Add("A->BPC");
+            listOfRules.Add("P->vBPC/?");
+            listOfRules.Add("B->CR");
+            listOfRules.Add("R->wCR/?");
+            listOfRules.Add("C->n");
 
-            rm.Rules.ForEach(x => lblProduction.Text += x.ToString() + Environment.NewLine);
+            //rm.Rules.Add(rm.CreateTextRule("A->BPC"));
+            //rm.Rules.Add(rm.CreateTextRule("P->vBPC"));
+            ////rm.Rules.Add(rm.CreateTextRule("P->?"));
+            //rm.Rules.Add(rm.CreateTextRule("P->vBPC/?"));
+            //rm.Rules.Add(rm.CreateTextRule("B->CR"));
+            //rm.Rules.Add(rm.CreateTextRule("R->wCR/?"));
+            //rm.Rules.Add(rm.CreateTextRule("R->wCR"));
+            ////rm.Rules.Add(rm.CreateTextRule("R->?"));
+            //rm.Rules.Add(rm.CreateTextRule("C->n"));
+
+            foreach(var rule in listOfRules)
+            {
+                rm.Rules.Add(rm.CreateTextRule(rule));
+                if (rule.Contains("/?"))
+                {
+                    var separated = rule.Split(new[] { "->" }, StringSplitOptions.None)[1].Split('/')[0];
+                    rm.Rules.Add(rm.CreateTextRule($"{rule.Select(x => x).FirstOrDefault()}->{separated}"));
+                    rm.Rules.Add(rm.CreateTextRule($"{rule.Select(x=> x).FirstOrDefault()}->?"));
+                }
+            }
+
+            listOfRules.ForEach(x => lblProduction.Text += x.ToString() + Environment.NewLine);
 
             foreach (Rule rule in rm.Rules)
             {
@@ -56,6 +80,7 @@ namespace Compilador
 
             var naoTerminais = listOfChars
                 .Where(x => !listOfNames.Contains(x.ToString()) && x != "?" && x != "/")
+                .Distinct()
                 .ToList();
 
             naoTerminais.Add("$");
@@ -77,6 +102,7 @@ namespace Compilador
             {
                 var firsts = rm.First(rule.Definitions).Select(x => x.Name).ToList();
                 var follows = rm.Follow(rule).Select(x => x.Name).ToList();
+                var teste = rm.Follow(rule);
 
                 foreach (DataGridViewRow row in grid.Rows)
                 {
@@ -117,31 +143,47 @@ namespace Compilador
             gridAnalise.Columns.Add("Entrada", "Entrada");
             gridAnalise.Columns.Add("Ação", "Ação");
 
-            var pilha = new List<string>() { listOfNames.First() };
+            pilha = new List<string>() { listOfNames.First() };
+        }
 
-            i = 0;
-            while (pilha.Count > 0)
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            gridAnalise.FirstDisplayedScrollingRowIndex = gridAnalise.RowCount - 1;
+
+            gridAnalise.Rows.Add();
+            gridAnalise[0, iteracao].Value = $"$ {String.Join("", pilha) }";
+            gridAnalise[1, iteracao].Value = $"{ String.Join(" ", listEntrada) } $";
+
+            if (pilha.LastOrDefault() == listEntrada.FirstOrDefault())
             {
-                gridAnalise.Rows.Add();
-                gridAnalise[0, i].Value = $"$ {String.Join("", pilha) }";
-                gridAnalise[1, i].Value = $"{ String.Join(" ", listEntrada) } $";
-
-                var col = grid.Columns.Cast<DataGridViewColumn>()
-                    .Where(x => x.HeaderText == listEntrada.First()).FirstOrDefault().Index;
-                var row = grid.Rows.Cast<DataGridViewRow>()
-                    .Where(x => x.HeaderCell.Value.ToString() == pilha.LastOrDefault()).FirstOrDefault().Index;
-
-                var producao = grid[col, row].Value.ToString();
-                gridAnalise[2, i].Value = producao;
-
+                gridAnalise[2, iteracao].Value = $"Desempilha { pilha.LastOrDefault() }";
                 pilha.Remove(pilha.Last());
-                var ruleText = rm.Rules
-                    .Where(x => x.ToString() == producao.Replace(" (first)", "").Replace(" follow", ""))
-                    .FirstOrDefault()
-                    .GetRuleText();
-                pilha.AddRange(new List<string>(ruleText.Reverse().Select(c => c.ToString())));
-                i++;
+                listEntrada.Remove(listEntrada.First());
+                iteracao++;
+                return;
             }
+
+            var col = grid.Columns.Cast<DataGridViewColumn>()
+                .Where(x => x.HeaderText == listEntrada.DefaultIfEmpty("$").First()).FirstOrDefault().Index;
+            var row = grid.Rows.Cast<DataGridViewRow>()
+                .Where(x => x.HeaderCell?.Value?.ToString() == pilha.LastOrDefault()).FirstOrDefault().Index;
+
+            var producao = grid[col, row].Value == null ? "Erro" : grid[col, row].Value.ToString();
+            gridAnalise[2, iteracao].Value = producao;
+
+            if (producao == "Erro")
+            {
+                btnNext.Enabled = false;
+                return;
+            }
+
+            pilha.RemoveAt(pilha.Count() - 1);
+            var ruleText = rm.Rules
+                .Where(x => x.ToString() == producao.Replace(" (first)", "").Replace(" (follow)", ""))
+                .FirstOrDefault()
+                .GetRuleText();
+            pilha.AddRange(new List<string>(ruleText.Where(x=> x != '?').Reverse().Select(c => c.ToString())));
+            iteracao++;
         }
     }
 
